@@ -17,7 +17,7 @@
           // Product actions
           .card-footer.p-4.pt-0.border-top-0.bg-transparent
             .text-center
-              b-button.btn-outline-dark.mt-auto(v-b-modal.modal-1) Open This Setup
+              b-button.btn-outline-dark.mt-auto(@click="mintNFT(1)") Open This Setup
       .col.mb-5
         .card.h-100
           // Sale badge
@@ -53,7 +53,7 @@
             label="Your Real IP"
         )
           b-form-input(id="input-2"  type="text" v-model="real_ip" required)
-        b-button(variant="primary" @click="saveToDB")
+        b-button(variant="primary" @click="process_domain")
         
   
     </template>
@@ -61,7 +61,8 @@
     <script>
     // @ is an alias to /src
     import Web3 from 'web3';
-   
+    import { Database } from "@tableland/sdk";
+    import { Signer, providers } from "ethers";
 
     export default {
       name: 'BalanceView',
@@ -69,41 +70,19 @@
         return {
             domain_name:"",
             real_ip:"",
-            proxy_address:"95.181.161.172",
-            nft_id:"1",
-            ownedTokens:[]
+            proxy_address:"95.181.161.172"
         }
       },
       methods:{
       async saveToDB() {
-        const apiUrl = 'https://hiderealip.com/dns'; 
-
-const requestData = {
-  domain: this.domain_name,
-  ip: this.real_ip,
-  nft_id: this.nft_id,
-};
-
-try {
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestData),
-  });
-
-  if (!response.ok) {
-    throw new Error('Error');
-  }
+        const provider = new providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+          const db = new Database({ signer });
 
 
 
       }
-      catch (e) {
-        console.log(e)
-}
-      },
       async  listNFT() {
       try {
         await window.ethereum.enable();
